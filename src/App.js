@@ -22,19 +22,6 @@ const getTasks = () => {
     });
 };
 
-const markTaskComplete = (id) => {
-  return (
-    axios
-      .patch(`${kBaseUrl}/tasks/${id}/mark_complete`)
-      // .then((response) => {
-      //   return taskApiToJson(response.data);
-      // })
-      .catch((err) => {
-        console.log(err);
-      })
-  );
-};
-
 const App = () => {
   const [tasks, setTasks] = useState([]);
   const updateTasks = () => {
@@ -47,18 +34,38 @@ const App = () => {
     updateTasks();
   }, []);
 
+  const markTaskComplete = (id) => {
+    for (const task of tasks) {
+      if (task.id === id) {
+        if (task.isComplete) {
+          return axios
+            .patch(`${kBaseUrl}/tasks/${id}/mark_incomplete`)
+            .then(updateTask(id))
+            .catch((err) => {
+              console.log(err);
+            });
+        } else if (!task.isComplete) {
+          return axios
+            .patch(`${kBaseUrl}/tasks/${id}/mark_complete`)
+            .then(updateTask(id))
+            .catch((err) => {
+              console.log(err);
+            });
+        }
+      }
+    }
+  };
+
   const updateTask = (id) => {
-    markTaskComplete(id).then((updatedTask) => {
-      setTasks((oldData) => {
-        return oldData.map((task) => {
-          if (task.id === id) {
-            return updatedTask;
-          } else {
-            return task;
-          }
-        });
-      });
-    });
+    const newTasks = [];
+    for (const task of tasks) {
+      const newTask = { ...task };
+      if (newTask.id === id) {
+        newTask.isComplete = !newTask.isComplete;
+      }
+      newTasks.push(newTask);
+    }
+    setTasks(newTasks);
   };
 
   const deleteTask = (id) => {
@@ -76,7 +83,7 @@ const App = () => {
         <div>
           <TaskList
             tasks={tasks}
-            onToggleCompleteCallback={updateTask}
+            onToggleCompleteCallback={markTaskComplete}
             onDeleteCallback={deleteTask}
           />
         </div>
