@@ -1,21 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import TaskList from './components/TaskList.js';
 import './App.css';
-
-const TASKS = [
-  {
-    id: 1,
-    title: 'Mow the lawn',
-    isComplete: false,
-  },
-  {
-    id: 2,
-    title: 'Cook Pasta',
-    isComplete: true,
-  },
-];
+import tasksJson from './data/tasks.json';
 
 const App = () => {
+  const [tasks, setTasks] = useState(tasksJson);
+
+  const updateTask = (id) => {
+    const newTasks = tasks.map((task) => {
+      if (task.id === id) {
+        return { ...task, isComplete: !task.isComplete };
+      } else {
+        return task;
+      }
+    });
+
+    setTasks(newTasks);
+  };
+
+  const deleteTask = (id) => {
+    const newTasks = tasks.filter((task) => task.id !== id);
+
+    setTasks(newTasks);
+  };
+
   return (
     <div className="App">
       <header className="App-header">
@@ -23,7 +31,11 @@ const App = () => {
       </header>
       <main>
         <div>
-          <TaskList tasks={TASKS} />
+          <TaskList
+            tasks={tasks}
+            onToggleCompleteCallback={updateTask}
+            onDeleteCallback={deleteTask}
+          />
         </div>
       </main>
     </div>
