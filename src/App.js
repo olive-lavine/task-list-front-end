@@ -21,6 +21,12 @@ const getTasks = () => {
     });
 };
 
+const removeTask = (id) => {
+  return axios.delete(`${kBaseUrl}/tasks/${id}`).catch((err) => {
+    console.log(err);
+  });
+};
+
 const App = () => {
   const [tasks, setTasks] = useState([]);
 
@@ -35,23 +41,20 @@ const App = () => {
   }, []);
 
   const markTask = (id) => {
+    let route = '';
     for (const task of tasks) {
       if (task.id === id) {
         if (task.isComplete) {
-          return axios
-            .patch(`${kBaseUrl}/tasks/${id}/mark_incomplete`)
-            .then(updateTask(id))
-            .catch((err) => {
-              console.log(err);
-            });
+          route = 'mark_incomplete';
         } else if (!task.isComplete) {
-          return axios
-            .patch(`${kBaseUrl}/tasks/${id}/mark_complete`)
-            .then(updateTask(id))
-            .catch((err) => {
-              console.log(err);
-            });
+          route = 'mark_complete';
         }
+        return axios
+          .patch(`${kBaseUrl}/tasks/${id}/${route}`)
+          .then(updateTask(id))
+          .catch((err) => {
+            console.log(err);
+          });
       }
     }
   };
@@ -69,9 +72,13 @@ const App = () => {
   };
 
   const deleteTask = (id) => {
-    const newTasks = tasks.filter((task) => task.id !== id);
-
-    setTasks(newTasks);
+    removeTask(id).then(() => {
+      setTasks((oldData) => {
+        return oldData.filter((task) => {
+          return task.id !== id;
+        });
+      });
+    });
   };
 
   return (
