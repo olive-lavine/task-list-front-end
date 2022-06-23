@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import TaskList from './components/TaskList.js';
 import './App.css';
-// import tasksJson from './data/tasks.json';
 import axios from 'axios';
 
 const kBaseUrl = 'http://localhost:5000';
 
-const taskApiToJson = (cat) => {
-  const { id, title, is_complete: isComplete } = cat;
+const taskApiToJson = (task) => {
+  const { id, title, is_complete: isComplete } = task;
   return { id, title, isComplete };
 };
 
@@ -24,6 +23,7 @@ const getTasks = () => {
 
 const App = () => {
   const [tasks, setTasks] = useState([]);
+
   const updateTasks = () => {
     getTasks().then((tasks) => {
       setTasks(tasks);
@@ -34,7 +34,7 @@ const App = () => {
     updateTasks();
   }, []);
 
-  const markTaskComplete = (id) => {
+  const markTask = (id) => {
     for (const task of tasks) {
       if (task.id === id) {
         if (task.isComplete) {
@@ -83,7 +83,7 @@ const App = () => {
         <div>
           <TaskList
             tasks={tasks}
-            onToggleCompleteCallback={markTaskComplete}
+            onToggleCompleteCallback={markTask}
             onDeleteCallback={deleteTask}
           />
         </div>
